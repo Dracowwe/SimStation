@@ -4,7 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-// rename as Controller?
+// AppPanel plays the role of controller in the Model-View-Controller architecture.
+
 public class AppPanel extends JPanel implements Subscriber, ActionListener  {
 
     protected Model model;
@@ -16,8 +17,16 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
     public static int FRAME_HEIGHT = 300;
 
     public AppPanel(AppFactory factory) {
-        this.factory = factory; // Initialize factory here
-        // initialize fields here
+        this.factory = factory;
+        model = factory.makeModel();
+        view = factory.makeView(model);
+        view.setBackground((Color.GRAY));
+        controlPanel = new JPanel();
+        controlPanel.setBackground((Color.PINK));
+        setLayout(new GridLayout(1, 2));
+        add(controlPanel);
+        add(view);
+        model.subscribe(this);
 
         frame = new SafeFrame();
         Container cp = frame.getContentPane();
@@ -25,7 +34,6 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
         frame.setJMenuBar(createMenuBar());
         frame.setTitle(factory.getTitle());
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-
     }
 
     public void display() { frame.setVisible(true); }
@@ -39,9 +47,9 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
         this.model.unsubscribe(this);
         this.model = newModel;
         this.model.subscribe(this);
-        // view must also unsubscribe then resubscribe:
         view.setModel(this.model);
         model.changed();
+        //alternatively: this.model.copy(model);
     }
 
     protected JMenuBar createMenuBar() {
@@ -86,7 +94,8 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
             } else if (cmmd.equals("Help")) {
                 Utilities.inform(factory.getHelp());
             } else { // must be from Edit menu
-                //???
+                Command command = factory.makeEditCommand(model, cmmd, ae.getSource());
+                command.execute();
             }
         } catch (Exception e) {
             handleException(e);
@@ -95,15 +104,5 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
 
     protected void handleException(Exception e) {
         Utilities.error(e);
-    }
-
-    private class ControlPanel extends JPanel {
-        // Constructor for ControlPanel class
-        public ControlPanel() {
-            // Set any properties or add additional components to the control panel here
-            // For example:
-            controlPanel = new JPanel();
-            controlPanel.setLayout(new GridLayout(3, 2));
-        }
     }
 }
