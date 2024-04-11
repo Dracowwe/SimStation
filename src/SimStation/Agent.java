@@ -1,11 +1,16 @@
 package SimStation;
+
 import mvc.*;
-abstract class Agent implements Runnable {
+
+public abstract class Agent implements Runnable {
 
     protected String name;
     protected Thread myThread;
+    protected Heading heading;
     private boolean suspended, stopped;
     protected Manager manager;
+    public int xc, yc;
+    protected Simulation world;
 
     public Agent(String name) {
         this.name = name;
@@ -65,4 +70,11 @@ abstract class Agent implements Runnable {
     }
 
     public abstract void update();
+
+    public void move(int steps) {
+        // add
+    }
+
+
+    public Heading getHeading() { return heading; }
 }
