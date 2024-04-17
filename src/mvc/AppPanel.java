@@ -6,15 +6,14 @@ import javax.swing.*;
 
 // AppPanel plays the role of controller in the Model-View-Controller architecture.
 
-public class AppPanel extends JPanel implements Subscriber, ActionListener  {
-
+public class AppPanel extends JPanel implements Subscriber, ActionListener {
     protected Model model;
     protected AppFactory factory;
     protected View view;
     protected JPanel controlPanel;
     private JFrame frame;
-    public static int FRAME_WIDTH = 500;
-    public static int FRAME_HEIGHT = 300;
+    public static int FRAME_WIDTH = 1000;
+    public static int FRAME_HEIGHT = 1000;
 
     public AppPanel(AppFactory factory) {
         this.factory = factory;
@@ -22,6 +21,7 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
         view = factory.makeView(model);
         view.setBackground((Color.GRAY));
         controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
         controlPanel.setBackground((Color.PINK));
         setLayout(new GridLayout(1, 2));
         add(controlPanel);
@@ -36,11 +36,17 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
     }
 
-    public void display() { frame.setVisible(true); }
+    public void display() {
+        frame.setVisible(true);
+    }
 
-    public void update() {  /* override in extensions if needed */ }
+    public void update() {
+        /* override in extensions if needed */
+    }
 
-    public Model getModel() { return model; }
+    public Model getModel() {
+        return model;
+    }
 
     // called by file/open and file/new
     public void setModel(Model newModel) {
@@ -49,14 +55,14 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
         this.model.subscribe(this);
         view.setModel(this.model);
         model.changed();
-        //alternatively: this.model.copy(model);
+        // alternatively: this.model.copy(model);
     }
 
     protected JMenuBar createMenuBar() {
         JMenuBar result = new JMenuBar();
         // add file, edit, and help menus
         JMenu fileMenu =
-                Utilities.makeMenu("File", new String[] {"New",  "Save", "SaveAs", "Open", "Quit"}, this);
+                Utilities.makeMenu("File", new String[]{"New", "Save", "SaveAs", "Open", "Quit"}, this);
         result.add(fileMenu);
 
         JMenu editMenu =
@@ -64,7 +70,7 @@ public class AppPanel extends JPanel implements Subscriber, ActionListener  {
         result.add(editMenu);
 
         JMenu helpMenu =
-                Utilities.makeMenu("Help", new String[] {"About", "Help"}, this);
+                Utilities.makeMenu("Help", new String[]{"About", "Help"}, this);
         result.add(helpMenu);
 
         return result;

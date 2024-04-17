@@ -1,16 +1,18 @@
 package SimStation;
 
 import mvc.*;
+import java.awt.*;
 
 public abstract class Agent implements Runnable {
 
     protected String name;
     protected Thread myThread;
     protected Heading heading;
+    //protected Manager manager;
     private boolean suspended, stopped;
-    protected Manager manager;
     public int xc, yc;
     protected Simulation world;
+    private Point oldPoint;
 
     public Agent(String name) {
         this.name = name;
@@ -19,7 +21,7 @@ public abstract class Agent implements Runnable {
         myThread = null;
     }
 
-    public void setManager(Manager m) { manager = m; }
+    //public void setManager(Manager m) { manager = m; }
     public String getName() { return name; }
     public synchronized String toString() {
         String result = name;
@@ -29,17 +31,29 @@ public abstract class Agent implements Runnable {
         return result;
     }
     // thread stuff:
-    public synchronized void stop() { stopped = true; }
+    public synchronized void stop() {
+        stopped = true;
+        onExit();
+    }
     public synchronized boolean isStopped() { return stopped; }
-    public synchronized void suspend() { suspended = true; }
+
+    public synchronized void suspend() {
+        suspended = true;
+        onInterrupted();
+    }
     public synchronized boolean isSuspended() { return suspended;  }
-    public synchronized void resume() { notify(); }
+
+    public synchronized void resume() {
+        suspended = false;
+        notify();
+        onStart();
+    }
     // wait for me to die:
     public synchronized void join() {
         try {
             if (myThread != null) myThread.join();
         } catch(InterruptedException e) {
-            manager.println(e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
     // wait for notification if I'm not stopped and I am suspended
@@ -50,30 +64,46 @@ public abstract class Agent implements Runnable {
                 suspended = false;
             }
         } catch (InterruptedException e) {
-            manager.println(e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
 
     public void run() {
         myThread = Thread.currentThread();
+        checkSuspended();
+        onStart();
         while (!isStopped()) {
             try {
                 update();
                 Thread.sleep(1000);
                 checkSuspended();
             } catch(InterruptedException e) {
-                manager.println(e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
-        manager.stdout.println(name + " stopped");
+        onExit();
     }
 
     public abstract void update();
 
     public void move(int steps) {
-        // add
+        /*
+        for (int i = 0; i < steps; i++) {
+            oldPoint = new Point(xc, yc);
+
+
+            xc += heading.getXOffset();
+            yc += heading.getYOffset();
+            world.changed(name, oldPoint, new Point(xc, yc)); // Call world.changed with old and new points
+        }
+
+         */
     }
+
+    protected void onStart() {}
+    protected void onInterrupted() {}
+    protected void onExit() {}
 
 
     public Heading getHeading() { return heading; }

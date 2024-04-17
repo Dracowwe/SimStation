@@ -2,13 +2,11 @@ package RandomWalk;
 
 import mvc.*;
 import SimStation.*;
-import java.awt.*;
-import java.util.Iterator;
 
 class Drunk extends Agent {
 
     public Drunk() {
-        super();
+        super("Drunk");
         heading = Heading.random();
     }
 
